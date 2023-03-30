@@ -38,19 +38,21 @@ chmod +x convert_md_to_pdf.sh
 ## Usage
 
 - To convert all Markdown files in the current working directory and its subdirectories:
-
 ```
 ./convert_md_to_pdf.sh
 ```
 
-- To convert all Markdown files in a specified directory and its subdirectories:
+- To convert a single Markdown file:
+```
+./convert_md_to_pdf.sh /path/to/your/file.md
+```
 
+- To convert all Markdown files in a specified directory and its subdirectories:
 ```
 ./convert_md_to_pdf.sh /path/to/your/directory
 ```
 
 - To convert all Markdown files in a subdirectory of the current working directory and its subdirectories:
-
 ```
 ./convert_md_to_pdf.sh ./subdirectory
 ```

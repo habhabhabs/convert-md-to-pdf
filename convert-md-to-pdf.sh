@@ -2,14 +2,22 @@
 
 # Check for help option
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
-  echo "Usage: $(basename "$0") [directory]"
-  echo "Convert all Markdown (.md) files in the specified directory and its subdirectories to PDF using the Skia engine."
-  echo "If no directory is specified, the current working directory will be used."
+  echo "Usage: $(basename "$0") [file|directory]"
+  echo "Convert a single Markdown (.md) file or all Markdown files in the specified directory and its subdirectories to PDF using the Skia engine."
+  echo "If no file or directory is specified, the current working directory will be used."
   echo ""
   echo "Examples:"
-  echo "  $(basename "$0")  # Convert all Markdown files in the current working directory and its subdirectories"
-  echo "  $(basename "$0") /path/to/your/directory  # Convert all Markdown files in the specified directory and its subdirectories"
-  echo "  $(basename "$0") ./subdirectory  # Convert all Markdown files in the subdirectory of the current working directory and its subdirectories"
+  echo -e "\n  Convert all Markdown files in the current working directory and its subdirectories"
+  echo -e "  $ ./$(basename "$0") "
+  echo ""
+  echo -e "\n  Convert the specified Markdown file to PDF"
+  echo -e "  $ ./$(basename "$0") /path/to/your/file.md"
+  echo ""
+  echo -e "\n  Convert all Markdown files in the specified directory and its subdirectories"
+  echo -e "  $ ./$(basename "$0") /path/to/your/directory"
+  echo ""
+  echo -e "\n  Convert all Markdown files in the subdirectory of the current working directory and its subdirectories"
+  echo -e "  $ ./$(basename "$0") ./subdirectory"
   exit 0
 fi
 
@@ -70,19 +78,33 @@ if ! command -v md-to-pdf >/dev/null 2>&1; then
   fi
 fi
 
-# Set the working directory
-if [ -z "$1" ]; then
-  dir="."
-else
-  dir="$1"
+# Set the working target
+target="."
+if [ -n "$1" ]; then
+  target="$1"
 fi
 
-# Convert Markdown files to PDF
-find "$dir" -type f -iname "*.md" -exec sh -c 'md-to-pdf "{}" && echo "Converted: {}"' \;
-
-if [ $? -eq 0 ]; then
-  echo "Conversion completed successfully."
+# Check if target is a file or directory
+if [ -f "$target" ]; then
+  # Convert single Markdown file to PDF
+  md-to-pdf "$target" && echo "Converted: $target"
+  if [ $? -eq 0 ]; then
+    echo "Conversion completed successfully."
+  else
+    echo "An error occurred during the conversion process."
+    exit 1
+  fi
+elif [ -d "$target" ]; then
+  # Convert Markdown files in directory to PDF
+  find "$target" -type f -iname "*.md" -exec sh -c 'md-to-pdf "{}" && echo "Converted: {}"' \;
+  if [ $? -eq 0 ]; then
+    echo "Conversion completed successfully."
+  else
+    echo "An error occurred during the conversion process."
+    exit 1
+  fi
 else
-  echo "An error occurred during the conversion process."
+  echo "Error: Target not found or is neither a file nor a directory."
   exit 1
 fi
+
